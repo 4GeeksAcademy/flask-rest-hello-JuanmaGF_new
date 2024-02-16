@@ -3,7 +3,7 @@ from flask_sqlalchemy import SQLAlchemy
 db = SQLAlchemy()
 
 class User(db.Model):
-   
+    __tablename__ = "user"
     id = db.Column(db.Integer, primary_key=True)
     first_name = db.Column(db.String(120))
     last_name = db.Column(db.String(120))
@@ -23,7 +23,7 @@ class User(db.Model):
         }
     
 class People(db.Model):
-    
+    __tablename__ = "people"
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String)
     birth_year = db.Column(db.String)
@@ -48,7 +48,7 @@ class People(db.Model):
             "skin_color": self.skin_color,
         }   
 class Planets(db.Model):
-    
+    __tablename__ = "planets"
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(120),  nullable=False)
     climate = db.Column(db.String(50),  nullable=False)
@@ -67,18 +67,18 @@ class Planets(db.Model):
             "population": self.population
         }
     
-#class Favorites(db.Model):
+class Favorites(db.Model):
     
-   # id = db.Column(db.Integer, primary_key=True)
-  #  usuarioId = db.Column(db.Integer, db.ForeignKey ("user.id"),  nullable=False)
-  #  peopleId = db.Column(db.String(50), db.ForeignKey ("people.id"), nullable=False)
-   # planetsId = db.Column(db.String(50), db.ForeignKey ("planets.id"), nullable=False)
-    #def __repr__(self):
-    #    return "<Favorites %r>" % self.id
-   # def serialize(self):
-    #    return {
-     #       "id": self.id,
-    #        "usuarioId": self.usuarioId,
-     #       "peopleId": self.peopleId,
-     #       "planetsId": self.planetsId,
-     #   }
+    id = db.Column(db.Integer, primary_key=True)
+    id_user = db.Column(db.Integer, db.ForeignKey ("user.id"),  nullable=False)
+    id_people = db.Column(db.Integer, db.ForeignKey ("people.id"), nullable=False)
+    id_planets = db.Column(db.Integer, db.ForeignKey ("planets.id"), nullable=False)
+    def __repr__(self):
+        return "<Favorites %r>" % self.id
+    def serialize(self):
+        return {
+            "id": self.id,
+            "id_user": self.id_user,
+            "id_people": self.id_people,
+            "id_planets": self.id_planets,
+        }

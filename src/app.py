@@ -8,7 +8,7 @@ from flask_swagger import swagger
 from flask_cors import CORS
 from utils import APIException, generate_sitemap
 from admin import setup_admin
-from models import db, User, People, Planets
+from models import db, User, People, Planets, Favorites
 #from models import Person
 
 app = Flask(__name__)
@@ -68,28 +68,47 @@ def get_planet_id(planets_id):
         return jsonify(), 200
     return jsonify(planets.serialize()), 200
 
-#@app.route('/user/favorites', methods=['GET'])
-#def get_favorites():
- #   favorite = Favorites.query.all()
-  #  all_favorites = list(map(lambda x: x.serialize(), favorite))
-   # return jsonify(all_favorites), 200 
+@app.route('/user/favorites', methods=['GET'])
+def get_favorites():
+    favorite = Favorites.query.all()
+    all_favorites = list(map(lambda x: x.serialize(), favorite))
+    return jsonify(all_favorites), 200 
 
 
-# @app.route('/favorites/planets/<int:planet_id>', methods=['POST'])
-# def create_favorites_planets(planet_id):
-#     body = request.get_json()
-#     new_planet = Planets(
-#         id=body.get('id'),
-#         name=body.get('name'),
-#         climate=body.get('climate'),
-#         terrain=body.get('terrain'),
-#         population=body.get('population')
-#     )
+@app.route('/favorites/planets/<int:planet_id>', methods=['POST'])
+def create_favorites_planets(planet_id):
+    body = request.get_json()
+    new_planet = Planets(
+        id=body.get('id'),
+        name=body.get('name'),
+        climate=body.get('climate'),
+        terrain=body.get('terrain'),
+        population=body.get('population')
+    )
 
-#     db.session.add(new_planet)
-#     db.session.commit()
+    db.session.add(new_planet)
+    db.session.commit()
 
-#     return jsonify(new_planet.serialize()), 200
+    return jsonify(new_planet.serialize()), 200
+
+@app.route('/favorites/people/<int:people_id>', methods=['POST'])
+def create_favorites_people(people_id):
+    body = request.get_json()
+    new_people = People(
+        id=body.get('id'),
+        name=body.get('name'),
+        birth_year=body.get('birth_year'),
+        eye_color=body.get('eye_color'),
+        height=body.get('height'),
+        mass=body.get('mass'),
+        skin_color=body.get('skin_color')
+       
+    )
+
+    db.session.add(new_people)
+    db.session.commit()
+
+    return jsonify(new_people.serialize()), 200
 
 @app.route('/user', methods=['POST'])
 def create_user():
