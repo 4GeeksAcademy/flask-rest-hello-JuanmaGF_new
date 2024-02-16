@@ -29,10 +29,12 @@ setup_admin(app)
 @app.errorhandler(APIException)
 def handle_invalid_usage(error):
     return jsonify(error.to_dict()), error.status_code
+
 # generate sitemap with all your endpoints
 @app.route('/')
 def sitemap():
     return generate_sitemap(app)
+
 
 @app.route('/user', methods=['GET'])
 def get_user():
@@ -42,11 +44,57 @@ def get_user():
     print(all_users)
     return jsonify(all_users)
 
+
 @app.route('/people', methods=['GET'])
 def get_people():
     peoples = People.query.all()
     all_people = list(map(lambda x: x.serialize(), peoples))
     return jsonify(all_people), 200 
+
+
+@app.route('/planets', methods=['GET'])
+def get_planet():
+    planetas = Planets.query.all()
+    all_planet = list(map(lambda x: x.serialize(), planetas))
+    return jsonify(all_planet), 200 
+
+
+@app.route('/user', methods=['POST'])
+def create_user():
+    request_body_user = request.get_json()
+    new_user = User(first_name=request_body_user["first_name"], last_name=request_body_user["last_name"], email=request_body_user["email"], password=request_body_user["password"])
+    db.session.add(new_user)
+    db.session.commit()
+    return jsonify(request_body_user), 200 
+
+@app.route('/planets', methods=['POST'])
+def create_planet():
+    request_body_planet = request.get_json()
+    new_planet = Planets(
+        name=request_body_planet["name"],
+        climate=request_body_planet["climate"],
+        terrain=request_body_planet["terrain"],
+        population=request_body_planet["population"]
+    )  
+    db.session.add(new_planet)
+    db.session.commit()
+    return jsonify(request_body_planet), 200
+
+@app.route('/people', methods=['POST'])
+def create_person():
+    request_body_person = request.get_json()
+    new_person = People(
+        name=request_body_person["name"],
+        birth_year=request_body_person["birth_year"],
+        eye_color=request_body_person["eye_color"],
+        hair_color=request_body_person["hair_color"],
+        height=request_body_person["height"],
+        mass=request_body_person["mass"],
+        skin_color=request_body_person["skin_color"]
+    )  
+    db.session.add(new_person)
+    db.session.commit()
+    return jsonify(request_body_person), 200
 
 @app.route('/people/<int:people_id>', methods=['GET'])
 def get_people_id(people_id):
@@ -55,13 +103,7 @@ def get_people_id(people_id):
         return jsonify(people.serialize()), 200
     else:
         return jsonify({"error": "People not found"}), 404
-
-@app.route('/planets', methods=['GET'])
-def get_planet():
-    planetas = Planets.query.all()
-    all_planet = list(map(lambda x: x.serialize(), planetas))
-    return jsonify(all_planet), 200 
-
+    
 @app.route('/planets/<int:planets_id>', methods=['GET'])
 def get_planet_id(planets_id):
     planet = Planets.query.get(planets_id)
@@ -87,7 +129,6 @@ def create_favorites_planets(planet_id):
         terrain=body.get('terrain'),
         population=body.get('population')
     )
-
     db.session.add(new_planet)
     db.session.commit()
 
@@ -104,24 +145,13 @@ def create_favorites_people(people_id):
         height=body.get('height'),
         mass=body.get('mass'),
         skin_color=body.get('skin_color'),
-        hair_color=body.get('hair_color')
-       
+        hair_color=body.get('hair_color')    
     )
-
     db.session.add(new_people)
     db.session.commit()
-
     return jsonify(new_people.serialize()), 200
 
-@app.route('/user', methods=['POST'])
-def create_user():
-    request_body_user = request.get_json()
 
-    new_user = User(first_name=request_body_user["first_name"], last_name=request_body_user["last_name"], email=request_body_user["email"], password=request_body_user["password"])
-    db.session.add(new_user)
-    db.session.commit()
-
-    return jsonify(request_body_user), 200 
 
 @app.route('/favorites/people/<int:people_id>', methods=['DELETE'])
 def delete_favorites_people(people_id):
