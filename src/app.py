@@ -50,10 +50,11 @@ def get_people():
 
 @app.route('/people/<int:people_id>', methods=['GET'])
 def get_people_id(people_id):
-    peoples = People.query.get(people_id)
-    if People is None:
-        return jsonify(), 200
-    return jsonify(peoples.serialize()), 200
+    people = People.query.get(people_id)
+    if people:
+        return jsonify(people.serialize()), 200
+    else:
+        return jsonify({"error": "People not found"}), 404
 
 @app.route('/planets', methods=['GET'])
 def get_planet():
@@ -63,11 +64,12 @@ def get_planet():
 
 @app.route('/planets/<int:planets_id>', methods=['GET'])
 def get_planet_id(planets_id):
-    planets= Planets.query.get(planets_id)
-    if Planets is None:
-        return jsonify(), 200
-    return jsonify(planets.serialize()), 200
-
+    planet = Planets.query.get(planets_id)
+    if planet:
+        return jsonify(planet.serialize()), 200
+    else:
+        return jsonify({"error": "Planet not found"}), 404
+    
 @app.route('/user/favorites', methods=['GET'])
 def get_favorites():
     favorite = Favorites.query.all()
@@ -101,7 +103,8 @@ def create_favorites_people(people_id):
         eye_color=body.get('eye_color'),
         height=body.get('height'),
         mass=body.get('mass'),
-        skin_color=body.get('skin_color')
+        skin_color=body.get('skin_color'),
+        hair_color=body.get('hair_color')
        
     )
 
@@ -120,6 +123,29 @@ def create_user():
 
     return jsonify(request_body_user), 200 
 
+@app.route('/favorites/people/<int:people_id>', methods=['DELETE'])
+def delete_favorites_people(people_id):
+    people_to_delete = People.query.get(people_id)
+
+    if people_to_delete:
+        db.session.delete(people_to_delete)
+        db.session.commit()
+        return jsonify({"message": "People deleted successfully"}), 200
+    else:
+        return jsonify({"error": "People not found"}), 404
+    
+
+@app.route('/favorites/planets/<int:planets_id>', methods=['DELETE'])
+def delete_favorites_planets(planets_id):
+    planets_to_delete = Planets.query.get(planets_id)
+
+    if planets_to_delete:
+        db.session.delete(planets_to_delete)
+        db.session.commit()
+        return jsonify({"message": "Planet deleted successfully"}), 200
+    else:
+        return jsonify({"error": "Planet not found"}), 404
+    
 # this only runs if `$ python src/app.py` is executed
 if __name__ == '__main__':
     PORT = int(os.environ.get('PORT', 3000))
